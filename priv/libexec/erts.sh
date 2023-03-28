@@ -7,7 +7,7 @@ __rel_apps() {
     __vsn="${REL_VSN//+/\\\+}"
     __rel="$(sed -E -n "/\{release,[^,]*,\"$__vsn\"/,/[^po]*(permanent|old)}/p" "$__releases")"
     echo "$__rel" \
-        | grep -E '[{][A-Za-z_0-9]*,\"[0-9.]*[A-Za-z0-9.\_\+\-]*\"' \
+        | grep -oE '[{][A-Za-z_0-9]*,\"[0-9.]*[A-Za-z0-9.\_\+\-]*\"' \
         | tail -n +2 \
         | sed -e's/"[^"]*$//' \
               -e's/^[^a-z]*//' \
