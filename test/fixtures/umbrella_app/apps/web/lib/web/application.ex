@@ -4,12 +4,11 @@ defmodule Web.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
-
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(WebWeb.Endpoint, []),
+      Supervisor.child_spec(WebWeb.Endpoint, []),
+      {Phoenix.PubSub, [name: Web.PubSub, adapter: Phoenix.PubSub.PG2]}
       # Start your own worker by calling: Web.Worker.start_link(arg1, arg2, arg3)
       # worker(Web.Worker, [arg1, arg2, arg3]),
     ]

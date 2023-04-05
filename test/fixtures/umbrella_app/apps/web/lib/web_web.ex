@@ -28,15 +28,18 @@ defmodule WebWeb do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/web_web/templates",
-                        namespace: WebWeb
+      use Phoenix.View,
+        root: "lib/web_web/templates",
+        namespace: WebWeb
 
       # Import convenience functions from controllers
-      import Phoenix.Controller, only: [get_flash: 2, view_module: 1]
+      import Phoenix.Controller, only: [view_module: 1]
+      import Phoenix.Flash, only: [get: 2]
 
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
+      import Phoenix.View
       import WebWeb.Router.Helpers
       import WebWeb.ErrorHelpers
       import WebWeb.Gettext
