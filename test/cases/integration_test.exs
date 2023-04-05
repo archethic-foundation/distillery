@@ -256,7 +256,7 @@ defmodule Distillery.Test.IntegrationTest do
       {:ok, {200, _}} -> 
         :ok
       err when tries < 5 ->
-        IO.inspect "Request (attempt #{tries} of 5) to /healthz endpoint failed with: #{err}"
+        IO.inspect "Request (attempt #{tries} of 5) to /healthz endpoint failed with: #{inspect(err)}"
         :timer.sleep(1_000)
         try_healthz(tries + 1)
       _ ->
