@@ -4,7 +4,7 @@ defmodule Distillery.Releases.Assembler do
   struct. It creates the release directory, copies applications, and generates release-specific
   files required by `:systools` and `:release_handler`.
   """
-  alias Distillery.Releases.Config
+  alias Distillery.Releases.Config, as: ReleasesConfig
   alias Distillery.Releases.Release
   alias Distillery.Releases.Environment
   alias Distillery.Releases.Profile
@@ -19,8 +19,8 @@ defmodule Distillery.Releases.Assembler do
   Record.defrecordp(:file_info, Record.extract(:file_info, from_lib: "kernel/include/file.hrl"))
 
   @doc false
-  @spec pre_assemble(Config.t()) :: {:ok, Release.t()} | {:error, term}
-  def pre_assemble(%Config{} = config) do
+  @spec pre_assemble(ReleasesConfig.t()) :: {:ok, Release.t()} | {:error, term}
+  def pre_assemble(%ReleasesConfig{} = config) do
     with {:ok, environment} <- Release.select_environment(config),
          {:ok, release} <- Release.select_release(config),
          release <- apply_environment(release, environment),
@@ -33,7 +33,7 @@ defmodule Distillery.Releases.Assembler do
   end
 
   @doc """
-  This function takes a Config struct and assembles the release.
+  This function takes a ReleasesConfig struct and assembles the release.
 
   **Note: This operation has side-effects!** It creates files, directories,
   copies files from other filesystem locations. If failures occur, no cleanup
@@ -41,8 +41,8 @@ defmodule Distillery.Releases.Assembler do
   this function are scoped to the current project's `rel` directory, and cannot
   impact the filesystem outside of this directory.
   """
-  @spec assemble(Config.t()) :: {:ok, Release.t()} | {:error, term}
-  def assemble(%Config{} = config) do
+  @spec assemble(ReleasesConfig.t()) :: {:ok, Release.t()} | {:error, term}
+  def assemble(%ReleasesConfig{} = config) do
     with {:ok, release} <- pre_assemble(config),
          {:ok, release} <- generate_overlay_vars(release),
          {:ok, release} <- copy_applications(release),
@@ -610,7 +610,7 @@ defmodule Distillery.Releases.Assembler do
     end
   end
 
-  # Generated when Mix.Config provider is active, default + provided sys.config
+  # Generated when Mix.ReleasesConfig provider is active, default + provided sys.config
   defp generate_sys_config(%Release{profile: %Profile{} = profile} = rel) do
     overlay_vars = profile.overlay_vars
     config_exs_path = profile.config
@@ -655,7 +655,7 @@ defmodule Distillery.Releases.Assembler do
                {:ok, tokens, _} <- :erl_scan.string(String.to_charlist(templated)),
                {:ok, sys_config} <- :erl_parse.parse_term(tokens),
                :ok <- validate_sys_config(sys_config),
-               merged <- Mix.Config.merge(base_config, sys_config) do
+               merged <- Config.Reader.merge(base_config, sys_config) do
             merged
           else
             err ->
@@ -686,7 +686,7 @@ defmodule Distillery.Releases.Assembler do
   end
 
   defp generate_base_config(base_config_path, config_providers) do
-    config = Distillery.Releases.Config.Providers.Elixir.eval!(base_config_path)
+    config = ReleasesConfig.Providers.Elixir.eval!(base_config_path)
 
     config =
       case Keyword.get(config, :sasl) do
@@ -809,13 +809,13 @@ defmodule Distillery.Releases.Assembler do
       config_boot =
         clean_boot
         |> BootScript.after_started(:elixir, [
-          {:apply, {Distillery.Releases.Config.Provider, :init, [providers]}}
+          {:apply, {ReleasesConfig.Provider, :init, [providers]}}
         ])
 
       # Finally, this is the "real" boot script for the app itself
       app_boot =
         boot
-        |> BootScript.add_kernel_proc({Distillery.Releases.Runtime.Pidfile, :start, []})
+        |> BootScript.add_kernel_proc({Runtime.Pidfile, :start, []})
 
       rel_dir = Release.version_path(release)
       bin_dir = Path.join(output_dir, "bin")
