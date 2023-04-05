@@ -39,7 +39,7 @@ defmodule Distillery.Test.Win32IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         end
       end
     end
@@ -74,7 +74,7 @@ defmodule Distillery.Test.Win32IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf!(tmpdir)
         end
@@ -107,7 +107,7 @@ defmodule Distillery.Test.Win32IntegrationTest do
         rescue
           e ->
             release_cmd(bin_path, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf!(tmpdir)
         end
@@ -133,7 +133,7 @@ defmodule Distillery.Test.Win32IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         end
       end
     end
