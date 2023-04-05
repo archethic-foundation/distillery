@@ -1,6 +1,6 @@
 defmodule Distillery.Releases.Config.Providers.Elixir do
   @moduledoc """
-  Provides support for `Mix.Config` config scripts, e.g. `config.exs`
+  Provides support for `Config` config scripts, e.g. `config.exs`
 
   This provider expects a path to a config file to load during boot as an argument:
 
@@ -9,14 +9,14 @@ defmodule Distillery.Releases.Config.Providers.Elixir do
       ]
 
   The above configuration goes in a `release` or `environment` definition in `rel/config.exs`,
-  and will result in the given path being expanded during boot, and evaluated using `Mix.Config`.
+  and will result in the given path being expanded during boot, and evaluated using `Config`.
 
   ## Caveats
 
   Because much of Mix assumes it is operating in a Mix project context, there are some things you
-  need to be aware of when using `Mix.Config` in releases:
+  need to be aware of when using `Config` in releases:
 
-    * `Mix` APIs, other than `Mix.Config` itself, are not guaranteed to work, and most do not. This
+    * `Mix` APIs, other than `Config` itself, are not guaranteed to work, and most do not. This
       provider starts Mix when the provider runs, so you can call `Mix.env`, but it is an exception
       to the rule. Other functions are unlikely to work, so you should not rely on them being available.
     * `Mix.env` always returns `:prod`, unless `MIX_ENV` is exported in the environment, in which case
@@ -46,7 +46,7 @@ defmodule Distillery.Releases.Config.Providers.Elixir do
         path
         |> eval!()
         |> merge_config()
-        |> Mix.Config.persist()
+        |> Application.put_all_env()
       else
         {:error, reason} ->
           exit(reason)
@@ -66,21 +66,21 @@ defmodule Distillery.Releases.Config.Providers.Elixir do
   def merge_config(runtime_config) do
     Enum.flat_map(runtime_config, fn {app, app_config} ->
       all_env = Application.get_all_env(app)
-      Mix.Config.merge([{app, all_env}], [{app, app_config}])
+      Config.Reader.merge([{app, all_env}], [{app, app_config}])
     end)
   end
 
   @doc false
   def eval!(path, imported_paths \\ [])
 
-  Code.ensure_loaded(Mix.Config)
+  Code.ensure_loaded(Config.Reader)
 
-  if function_exported?(Mix.Config, :eval!, 2) do
+  if function_exported?(Config.Reader, :read_imports!, 2) do
     def eval!(path, imported_paths) do
-      {config, _} = Mix.Config.eval!(path, imported_paths)
+      {config, _} = Config.Reader.read_imports!(path, imported_paths)
       config
     end
   else
-    def eval!(path, imported_paths), do: Mix.Config.read!(path, imported_paths)
+    def eval!(path, imported_paths), do: Config.Reader.read!(path, imported_paths)
   end
 end
