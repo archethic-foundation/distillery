@@ -14,6 +14,7 @@ defmodule Distillery.Releases.Assembler do
   alias Distillery.Releases.Appup
   alias Distillery.Releases.Plugin
   alias Distillery.Releases.Overlays
+  alias Distillery.Releases.Runtime.Pidfile
 
   require Record
   Record.defrecordp(:file_info, Record.extract(:file_info, from_lib: "kernel/include/file.hrl"))
@@ -815,7 +816,7 @@ defmodule Distillery.Releases.Assembler do
       # Finally, this is the "real" boot script for the app itself
       app_boot =
         boot
-        |> BootScript.add_kernel_proc({Runtime.Pidfile, :start, []})
+        |> BootScript.add_kernel_proc({Pidfile, :start, []})
 
       rel_dir = Release.version_path(release)
       bin_dir = Path.join(output_dir, "bin")
