@@ -6,7 +6,6 @@ defmodule Distillery.Mixfile do
       app: :distillery,
       version: "2.1.2",
       elixir: "~> 1.14",
-
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
