@@ -5,7 +5,8 @@ defmodule Distillery.Mixfile do
     [
       app: :distillery,
       version: "2.1.2",
-      elixir: "~> 1.6",
+      elixir: "~> 1.14",
+
       build_embedded: Mix.env() == :prod,
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -40,17 +41,16 @@ defmodule Distillery.Mixfile do
   end
 
   def application do
-    [extra_applications: [:runtime_tools]]
+    [extra_applications: [:runtime_tools, :crypto, :eex, :sasl]]
   end
 
   defp deps do
     [
-      {:artificery, "~> 0.2"},
-      {:ex_doc, "~> 0.13", only: [:docs]},
-      {:excoveralls, "~> 0.6", only: [:test]},
-      {:eqc_ex, "~> 1.4", only: [:test]},
-      {:ex_unit_clustered_case, "~> 0.3", only: [:test], runtime: false},
-      {:dialyzex, "~> 1.2", only: [:dev], runtime: false}
+      {:artificery, "~> 0.4"},
+      {:ex_doc, "~> 0.29", only: [:docs]},
+      {:excoveralls, "~> 0.16", only: [:test]},
+      {:ex_unit_clustered_case, "~> 0.5", only: [:test], runtime: false},
+      {:dialyzex, "~> 1.3", only: [:dev], runtime: false}
     ]
   end
 

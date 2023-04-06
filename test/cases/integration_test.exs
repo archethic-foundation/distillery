@@ -34,7 +34,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         end
       end
     end
@@ -69,7 +69,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf!(tmpdir)
         end
@@ -122,7 +122,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin_path, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf(tmpdir)
           reset_changes!(app_path())
@@ -182,7 +182,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin_path, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf(tmpdir)
           reset_changes!(app_path())
@@ -216,7 +216,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin_path, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         after
           File.rm_rf!(tmpdir)
         end
@@ -227,7 +227,7 @@ defmodule Distillery.Test.IntegrationTest do
   describe "umbrella application" do
     test "can build umbrella and deploy it - dev" do
       with_umbrella_app do
-        assert {:ok, output} = build_release(env: :dev, no_tar: true)
+        assert {:ok, _output} = build_release(env: :dev, no_tar: true)
         
         bin = Path.join([output_path(), "bin", "umbrella"])
         
@@ -242,7 +242,7 @@ defmodule Distillery.Test.IntegrationTest do
         rescue
           e ->
             release_cmd(bin, "stop")
-            reraise e, System.stacktrace()
+            reraise e, __STACKTRACE__
         end
       end
     end
@@ -256,7 +256,7 @@ defmodule Distillery.Test.IntegrationTest do
       {:ok, {200, _}} -> 
         :ok
       err when tries < 5 ->
-        IO.inspect "Request (attempt #{tries} of 5) to /healthz endpoint failed with: #{err}"
+        IO.inspect "Request (attempt #{tries} of 5) to /healthz endpoint failed with: #{inspect(err)}"
         :timer.sleep(1_000)
         try_healthz(tries + 1)
       _ ->
